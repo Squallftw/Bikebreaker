@@ -1,0 +1,21 @@
+node_modules
+dist
+dist-ssr
+*.local
+.vite
+*.tsbuildinfo
+
+# Env / secrets (.env.example IS committed)
+.env
+.env.local
+.env.*.local
+
+# Source PDFs + extraction work (large; not needed to build or run)
+pdf/
+
+# Editor / OS
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+Thumbs.db

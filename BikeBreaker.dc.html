@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: #edeef1; -webkit-font-smoothing: antialiased; }
+  input::placeholder { color: #adb0b6; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: #d6d8dc; border-radius: 8px; border: 3px solid transparent; background-clip: content-box; }
+</style>
+</helmet>
+
+<div style="min-height:100vh;font-family:'Geist',system-ui,sans-serif;color:#1c1c24;display:flex;background:#edeef1;">
+
+  <!-- ============ SCRIM (mobile) ============ -->
+  <div onClick="{{ closeNav }}" style="{{ scrimStyle }}"></div>
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside style="{{ sidebarStyle }}">
+    <div style="display:flex;align-items:center;gap:10px;padding:4px 8px 22px;">
+      <span style="width:30px;height:30px;border-radius:9px;background:#3b6ef6;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;font-family:'Geist Mono',monospace;">B</span>
+      <span style="font-weight:600;font-size:16px;letter-spacing:-0.01em;color:#fff;">BikeBreaker</span>
+    </div>
+
+    <p style="font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#6b6d72;margin:8px 8px 8px;">Main menu</p>
+    <nav style="display:flex;flex-direction:column;gap:3px;">
+      <button onClick="{{ goDashboard }}" style="{{ navDashboardStyle }}">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Dashboard
+      </button>
+      <button onClick="{{ goPicker }}" style="{{ navPickerStyle }}">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        Pick a part
+      </button>
+      <button onClick="{{ goResults }}" style="{{ navResultsStyle }}">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>
+        Compatible parts
+      </button>
+      <button onClick="{{ goBuild }}" style="{{ navBuildStyle }}">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5"/><path d="m3 17 9 5 9-5"/></svg>
+        My build
+      </button>
+    </nav>
+
+    <p style="font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#6b6d72;margin:22px 8px 8px;">Preferences</p>
+    <nav style="display:flex;flex-direction:column;gap:3px;">
+      <button onClick="{{ goDashboard }}" style="display:flex;align-items:center;gap:12px;padding:10px 12px;border:none;background:none;cursor:pointer;font-family:inherit;font-size:14px;font-weight:500;color:#9a9ca1;border-radius:9px;text-align:left;width:100%;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.6 9a2.5 2.5 0 0 1 4.7 1.2c0 1.7-2.4 2-2.4 3.3"/><path d="M12 17h.01"/></svg>
+        Help center
+      </button>
+    </nav>
+
+    <div style="margin-top:auto;">
+      <button onClick="{{ goBuild }}" style="{{ statusCardStyle }}">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+          <span style="{{ statusCardDotStyle }}"></span>
+          <span style="font-size:13.5px;font-weight:600;color:#fff;white-space:nowrap;">{{ statusCardLabel }}</span>
+        </div>
+        <p style="margin:0 0 13px;font-size:12.5px;color:#9a9ca1;line-height:1.4;">{{ statusCardSub }}</p>
+        <span style="display:flex;align-items:center;justify-content:center;gap:7px;background:#3b6ef6;color:#fff;border-radius:8px;padding:9px;font-size:13px;font-weight:600;">View build</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ============ CONTENT ============ -->
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column;min-height:100vh;">
+
+    <!-- top bar -->
+    <header style="position:sticky;top:0;z-index:30;background:rgba(237,238,241,0.82);backdrop-filter:blur(10px);">
+      <div style="display:flex;align-items:center;gap:14px;padding:18px 28px;max-width:1180px;margin:0 auto;width:100%;">
+        <button onClick="{{ toggleNav }}" style="{{ hamburgerStyle }}">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        </button>
+        <div style="flex:1;min-width:0;">
+          <h1 style="font-size:21px;font-weight:600;letter-spacing:-0.02em;margin:0;line-height:1.2;">{{ pageTitle }}</h1>
+          <p style="margin:2px 0 0;font-size:13px;color:#82858c;">{{ pageSubtitle }}</p>
+        </div>
+        <button onClick="{{ goPicker }}" style="display:flex;align-items:center;gap:8px;background:#1c1c1e;color:#fff;border:none;border-radius:9px;padding:10px 15px;font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer;white-space:nowrap;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+          New build
+        </button>
+        <span style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#3b6ef6,#7c4ec4);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex:none;">AR</span>
+      </div>
+    </header>
+
+    <main style="flex:1;width:100%;max-width:1180px;margin:0 auto;padding:8px 28px 64px;">
+
+      <!-- ========== DASHBOARD ========== -->
+      <sc-if value="{{ isDashboard }}" hint-placeholder-val="{{ true }}">
+        <section data-screen-label="Dashboard">
+          <!-- owned part -->
+          <div style="background:#fff;border:1px solid #ececee;border-radius:16px;padding:22px;margin-bottom:16px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;">
+            <span style="{{ selectedGlyphStyle }}">{{ selectedLetter }}</span>
+            <div style="flex:1;min-width:200px;">
+              <p style="font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:#abaeb4;margin:0 0 3px;font-family:'Geist Mono',monospace;">You have</p>
+              <h2 style="font-size:22px;font-weight:600;letter-spacing:-0.02em;margin:0;">{{ selectedBrand }} {{ selectedName }}</h2>
+              <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:11px;">
+                <sc-for list="{{ selectedSpecs }}" as="s" hint-placeholder-count="4">
+                  <span style="display:inline-flex;align-items:center;background:#f4f5f7;border:1px solid #ececee;border-radius:7px;padding:4px 9px;font-size:12px;font-family:'Geist Mono',monospace;color:#5c5f66;">{{ s }}</span>
+                </sc-for>
+              </div>
+            </div>
+            <button onClick="{{ goPicker }}" style="background:#f1f2f4;border:1px solid #e7e8ea;color:#3a3d44;border-radius:9px;padding:10px 16px;font-family:inherit;font-size:13.5px;font-weight:600;cursor:pointer;">Change part</button>
+          </div>
+
+          <!-- KPI row -->
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:16px;">
+            <div style="background:#fff;border:1px solid #ececee;border-radius:14px;padding:18px;">
+              <p style="font-size:12.5px;color:#82858c;margin:0 0 10px;font-weight:500;">Parts checked</p>
+              <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:8px;">
+                <span style="font-size:30px;font-weight:600;letter-spacing:-0.02em;">{{ kpiChecked }}</span>
+                <span style="font-size:12px;color:#abaeb4;font-family:'Geist Mono',monospace;">{{ kpiGroups }} groups</span>
+              </div>
+            </div>
+            <div style="background:#fff;border:1px solid #ececee;border-radius:14px;padding:18px;">
+              <p style="font-size:12.5px;color:#82858c;margin:0 0 10px;font-weight:500;">Compatible</p>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                <div>
+                  <span style="font-size:30px;font-weight:600;letter-spacing:-0.02em;color:#167a45;">{{ kpiFits }}</span>
+                  <span style="display:inline-flex;align-items:center;gap:4px;margin-left:8px;font-size:12px;font-weight:600;color:#1f9d57;background:#e9f5ee;border-radius:6px;padding:2px 7px;">{{ kpiFitPct }}</span>
+                </div>
+                <span style="{{ donutStyle }}"><span style="width:30px;height:30px;border-radius:50%;background:#fff;"></span></span>
+              </div>
+            </div>
+            <div style="background:#fff;border:1px solid #ececee;border-radius:14px;padding:18px;">
+              <p style="font-size:12.5px;color:#82858c;margin:0 0 10px;font-weight:500;">Conflicts</p>
+              <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:8px;">
+                <span style="font-size:30px;font-weight:600;letter-spacing:-0.02em;color:{{ kpiConflictColor }};">{{ kpiConflicts }}</span>
+                <span style="font-size:12px;font-weight:600;color:#82858c;">{{ kpiConflictNote }}</span>
+              </div>
+            </div>
+            <div style="background:#fff;border:1px solid #ececee;border-radius:14px;padding:18px;">
+              <p style="font-size:12.5px;color:#82858c;margin:0 0 10px;font-weight:500;">Build status</p>
+              <div style="display:flex;align-items:center;gap:9px;">
+                <span style="{{ buildStatusDotStyle }}"></span>
+                <span style="font-size:17px;font-weight:600;letter-spacing:-0.01em;color:{{ buildStatusColor }};">{{ buildStatusLabel }}</span>
+              </div>
+              <p style="margin:8px 0 0;font-size:12px;color:#abaeb4;">{{ buildPartCount }} in your build</p>
+            </div>
+          </div>
+
+          <!-- by-group overview -->
+          <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:14px;align-items:start;">
+            <div style="background:#fff;border:1px solid #ececee;border-radius:16px;padding:20px;min-width:0;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                <h3 style="font-size:15.5px;font-weight:600;margin:0;">Compatibility by group</h3>
+                <button onClick="{{ goResults }}" style="background:none;border:none;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:600;color:#3b6ef6;padding:0;">View all →</button>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:14px;">
+                <sc-for list="{{ groups }}" as="g" hint-placeholder-count="3">
+                  <div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px;">
+                      <span style="font-size:13.5px;font-weight:500;color:#3a3d44;">{{ g.title }}</span>
+                      <span style="font-size:12px;font-family:'Geist Mono',monospace;color:#82858c;white-space:nowrap;">{{ g.count }}</span>
+                    </div>
+                    <div style="height:8px;border-radius:6px;background:#f0f1f3;overflow:hidden;">
+                      <div style="{{ g.barStyle }}"></div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="background:#fff;border:1px solid #ececee;border-radius:16px;padding:20px;">
+              <h3 style="font-size:15.5px;font-weight:600;margin:0 0 16px;">Status legend</h3>
+              <div style="display:flex;flex-direction:column;gap:14px;">
+                <div style="display:flex;gap:11px;align-items:flex-start;">
+                  <span style="width:9px;height:9px;border-radius:50%;background:#1f9d57;margin-top:4px;flex:none;"></span>
+                  <div><span style="display:block;font-size:13.5px;font-weight:600;">Fits</span><span style="display:block;font-size:12.5px;color:#82858c;margin-top:1px;">Mechanically compatible — safe to buy.</span></div>
+                </div>
+                <div style="display:flex;gap:11px;align-items:flex-start;">
+                  <span style="width:9px;height:9px;border-radius:50%;background:#e0473a;margin-top:4px;flex:none;"></span>
+                  <div><span style="display:block;font-size:13.5px;font-weight:600;">Conflict</span><span style="display:block;font-size:12.5px;color:#82858c;margin-top:1px;">Won’t work — the clashing spec is named.</span></div>
+                </div>
+                <div style="display:flex;gap:11px;align-items:flex-start;">
+                  <span style="width:9px;height:9px;border-radius:50%;background:#b0aaa2;margin-top:4px;flex:none;"></span>
+                  <div><span style="display:block;font-size:13.5px;font-weight:600;">Unrelated</span><span style="display:block;font-size:12.5px;color:#82858c;margin-top:1px;">Different interface — doesn’t apply.</span></div>
+                </div>
+              </div>
+              <button onClick="{{ goResults }}" style="margin-top:18px;width:100%;background:#3b6ef6;color:#fff;border:none;border-radius:9px;padding:11px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;">See all compatible parts</button>
+            </div>
+          </div>
+        </section>
+      </sc-if>
+
+      <!-- ========== PICK A PART ========== -->
+      <sc-if value="{{ isPicker }}" hint-placeholder-val="{{ false }}">
+        <section data-screen-label="Part picker">
+          <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:22px;">
+            <sc-for list="{{ partTypes }}" as="pt" hint-placeholder-count="6">
+              <button onClick="{{ pt.select }}" style="{{ pt.chipStyle }}">
+                <span style="{{ pt.glyphStyle }}">{{ pt.letter }}</span>
+                {{ pt.label }}
+              </button>
+            </sc-for>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #e7e8ea;border-radius:11px;padding:12px 14px;margin-bottom:16px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#adb0b6" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+            <input value="{{ query }}" onInput="{{ onSearch }}" placeholder="Search by brand or model…" style="border:none;outline:none;background:none;font-family:inherit;font-size:15px;color:#1c1c24;width:100%;" />
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <sc-for list="{{ pickerResults }}" as="p" hint-placeholder-count="5">
+              <button onClick="{{ p.select }}" style="display:flex;align-items:center;gap:14px;background:#fff;border:1px solid #ececee;border-radius:13px;padding:14px 16px;cursor:pointer;font-family:inherit;text-align:left;width:100%;">
+                <span style="{{ p.glyphStyle }}">{{ p.letter }}</span>
+                <span style="flex:1;min-width:0;">
+                  <span style="display:block;font-size:11.5px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:#abaeb4;font-family:'Geist Mono',monospace;">{{ p.brand }}</span>
+                  <span style="display:block;font-size:15px;font-weight:600;color:#1c1c24;margin-top:1px;">{{ p.name }}</span>
+                  <span style="display:block;font-size:12.5px;color:#abaeb4;margin-top:2px;font-family:'Geist Mono',monospace;">{{ p.spec }}</span>
+                </span>
+                <sc-if value="{{ showPrices }}" hint-placeholder-val="{{ true }}">
+                  <span style="font-size:14px;font-weight:600;font-family:'Geist Mono',monospace;color:#1c1c24;white-space:nowrap;">{{ p.price }}</span>
+                </sc-if>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#cdcfd3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:none;"><path d="m9 18 6-6-6-6"/></svg>
+              </button>
+            </sc-for>
+            <sc-if value="{{ pickerEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="text-align:center;padding:52px 20px;background:#fff;border:1px dashed #dcdee1;border-radius:14px;">
+                <p style="margin:0 0 4px;font-size:15px;font-weight:600;color:#1c1c24;">No parts match “{{ query }}”</p>
+                <p style="margin:0;font-size:13.5px;color:#abaeb4;">Try another brand or model, or switch category above.</p>
+              </div>
+            </sc-if>
+          </div>
+        </section>
+      </sc-if>
+
+      <!-- ========== COMPATIBLE PARTS (RESULTS) ========== -->
+      <sc-if value="{{ isResults }}" hint-placeholder-val="{{ true }}">
+        <section data-screen-label="Compatible parts">
+          <!-- compact owned bar -->
+          <div style="background:#fff;border:1px solid #ececee;border-radius:14px;padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;gap:13px;">
+            <span style="{{ selectedGlyphSmStyle }}">{{ selectedLetter }}</span>
+            <div style="flex:1;min-width:0;">
+              <span style="display:block;font-size:11px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:#abaeb4;font-family:'Geist Mono',monospace;">You have</span>
+              <span style="display:block;font-size:15.5px;font-weight:600;margin-top:1px;letter-spacing:-0.01em;">{{ selectedBrand }} {{ selectedName }}</span>
+            </div>
+            <button onClick="{{ goPicker }}" style="background:#f1f2f4;border:1px solid #e7e8ea;color:#3a3d44;border-radius:8px;padding:8px 14px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">Change</button>
+          </div>
+
+          <!-- compact KPI row -->
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
+            <div style="background:#fff;border:1px solid #ececee;border-radius:13px;padding:14px 16px;">
+              <p style="font-size:12px;color:#82858c;margin:0 0 5px;font-weight:500;">Checked</p>
+              <span style="font-size:23px;font-weight:600;letter-spacing:-0.02em;">{{ kpiChecked }}</span>
+            </div>
+            <div style="background:#fff;border:1px solid #ececee;border-radius:13px;padding:14px 16px;">
+              <p style="font-size:12px;color:#82858c;margin:0 0 5px;font-weight:500;">Compatible</p>
+              <span style="font-size:23px;font-weight:600;letter-spacing:-0.02em;color:#167a45;">{{ kpiFits }}</span>
+            </div>
+            <div style="background:#fff;border:1px solid #ececee;border-radius:13px;padding:14px 16px;">
+              <p style="font-size:12px;color:#82858c;margin:0 0 5px;font-weight:500;">Conflicts</p>
+              <span style="font-size:23px;font-weight:600;letter-spacing:-0.02em;color:{{ kpiConflictColor }};">{{ kpiConflicts }}</span>
+            </div>
+          </div>
+
+          <!-- group panels -->
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <sc-for list="{{ groups }}" as="g" hint-placeholder-count="3">
+              <div style="background:#fff;border:1px solid #ececee;border-radius:16px;padding:6px 6px 8px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 14px 12px;">
+                  <div style="min-width:0;">
+                    <h3 style="font-size:15.5px;font-weight:600;letter-spacing:-0.01em;margin:0;">{{ g.title }}</h3>
+                    <p style="font-size:12.5px;color:#abaeb4;margin:2px 0 0;">{{ g.subtitle }}</p>
+                  </div>
+                  <span style="font-size:12px;color:#82858c;font-family:'Geist Mono',monospace;background:#f4f5f7;border-radius:6px;padding:4px 9px;white-space:nowrap;">{{ g.count }}</span>
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:6px;">
+                  <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="3">
+                    <div style="{{ it.rowStyle }}">
+                      <div style="display:flex;align-items:flex-start;gap:13px;">
+                        <span style="{{ it.glyphStyle }}">{{ it.letter }}</span>
+                        <div style="flex:1;min-width:0;">
+                          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+                            <div style="min-width:0;">
+                              <span style="display:block;font-size:11px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:#abaeb4;font-family:'Geist Mono',monospace;">{{ it.brand }}</span>
+                              <span style="display:block;font-size:15px;font-weight:600;color:#1c1c24;margin-top:1px;letter-spacing:-0.01em;line-height:1.3;">{{ it.name }}</span>
+                              <span style="display:block;font-size:12px;color:#abaeb4;margin-top:3px;font-family:'Geist Mono',monospace;line-height:1.4;">{{ it.spec }}</span>
+                            </div>
+                            <div style="text-align:right;flex:none;">
+                              <span style="{{ it.badgeStyle }}"><span style="{{ it.dotStyle }}"></span><span style="font-family:'Geist Mono',monospace;letter-spacing:0.02em;">{{ it.statusLabel }}</span></span>
+                              <sc-if value="{{ showPrices }}" hint-placeholder-val="{{ true }}">
+                                <span style="display:block;font-size:14px;font-weight:600;font-family:'Geist Mono',monospace;color:#1c1c24;margin-top:8px;">{{ it.price }}</span>
+                              </sc-if>
+                            </div>
+                          </div>
+
+                          <div style="display:flex;align-items:center;flex-wrap:wrap;gap:9px;margin-top:11px;">
+                            <sc-if value="{{ it.hasReason }}" hint-placeholder-val="{{ false }}">
+                              <span style="font-size:12.5px;color:#6f7178;">{{ it.reason }}</span>
+                            </sc-if>
+                            <span style="flex:1;"></span>
+                            <button onClick="{{ it.toggleDetail }}" style="{{ it.detailBtnStyle }}">{{ it.detailLabel }}</button>
+                            <button onClick="{{ it.add }}" style="{{ it.addStyle }}">{{ it.addLabel }}</button>
+                          </div>
+
+                          <sc-if value="{{ it.expanded }}" hint-placeholder-val="{{ false }}">
+                            <div style="margin-top:12px;background:#f8f9fa;border:1px solid #eef0f2;border-radius:11px;padding:13px;display:flex;flex-direction:column;gap:9px;">
+                              <sc-for list="{{ it.detail }}" as="d" hint-placeholder-count="2">
+                                <div style="display:flex;align-items:center;gap:10px;">
+                                  <span style="{{ d.dotStyle }}"></span>
+                                  <span style="width:78px;flex:none;font-size:11px;color:#abaeb4;font-family:'Geist Mono',monospace;text-transform:uppercase;letter-spacing:0.04em;">{{ d.label }}</span>
+                                  <span style="flex:1;min-width:0;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12.5px;">
+                                    <span style="color:#b0b3b8;">yours</span>
+                                    <span style="{{ d.youStyle }}">{{ d.you }}</span>
+                                    <span style="color:#cdcfd3;">→</span>
+                                    <span style="color:#b0b3b8;">this</span>
+                                    <span style="{{ d.themStyle }}">{{ d.them }}</span>
+                                  </span>
+                                </div>
+                              </sc-for>
+                            </div>
+                          </sc-if>
+                        </div>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+      </sc-if>
+
+      <!-- ========== MY BUILD ========== -->
+      <sc-if value="{{ isBuild }}" hint-placeholder-val="{{ false }}">
+        <section data-screen-label="My build">
+          <div style="{{ buildBannerStyle }}">
+            <div style="display:flex;align-items:center;gap:14px;">
+              <span style="{{ buildBannerIconStyle }}">
+                <sc-if value="{{ buildOk }}" hint-placeholder-val="{{ true }}">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                </sc-if>
+                <sc-if value="{{ buildBad }}" hint-placeholder-val="{{ false }}">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v5M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+                </sc-if>
+              </span>
+              <div>
+                <h2 style="font-size:21px;font-weight:600;letter-spacing:-0.02em;margin:0;color:{{ buildStatusColor }};">{{ buildStatusLabel }}</h2>
+                <p style="margin:3px 0 0;font-size:13.5px;color:#6f7178;">{{ buildBannerSub }}</p>
+              </div>
+            </div>
+            <sc-if value="{{ showPrices }}" hint-placeholder-val="{{ true }}">
+              <div style="text-align:right;">
+                <p style="margin:0;font-size:12px;color:#abaeb4;">Build total</p>
+                <p style="margin:2px 0 0;font-size:24px;font-weight:600;font-family:'Geist Mono',monospace;letter-spacing:-0.01em;">{{ buildTotal }}</p>
+              </div>
+            </sc-if>
+          </div>
+
+          <div style="background:#fff;border:1px solid #ececee;border-radius:16px;padding:8px;margin-top:16px;">
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <sc-for list="{{ trayParts }}" as="b" hint-placeholder-count="2">
+                <div style="{{ b.rowStyle }}">
+                  <span style="{{ b.glyphStyle }}">{{ b.letter }}</span>
+                  <div style="flex:1;min-width:0;">
+                    <div style="display:flex;align-items:center;gap:8px;">
+                      <span style="font-size:11px;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:#abaeb4;font-family:'Geist Mono',monospace;">{{ b.brand }}</span>
+                      <sc-if value="{{ b.pinned }}" hint-placeholder-val="{{ false }}">
+                        <span style="font-size:9.5px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:#6f7178;background:#f0f1f3;border-radius:4px;padding:2px 6px;font-family:'Geist Mono',monospace;">You have</span>
+                      </sc-if>
+                    </div>
+                    <span style="display:block;font-size:15px;font-weight:600;color:#1c1c24;margin-top:1px;">{{ b.name }}</span>
+                    <sc-if value="{{ b.hasReason }}" hint-placeholder-val="{{ false }}">
+                      <span style="display:block;font-size:12.5px;color:#b3261e;margin-top:4px;line-height:1.4;">{{ b.reason }}</span>
+                    </sc-if>
+                  </div>
+                  <sc-if value="{{ showPrices }}" hint-placeholder-val="{{ true }}">
+                    <span style="font-size:14px;font-weight:600;font-family:'Geist Mono',monospace;color:#1c1c24;white-space:nowrap;">{{ b.price }}</span>
+                  </sc-if>
+                  <span style="{{ b.statusBadgeStyle }}"><span style="{{ b.dotStyle }}"></span>{{ b.statusLabel }}</span>
+                  <sc-if value="{{ b.removable }}" hint-placeholder-val="{{ true }}">
+                    <button onClick="{{ b.remove }}" style="background:none;border:none;cursor:pointer;color:#c0c3c8;font-size:20px;font-family:'Geist Mono',monospace;padding:2px 6px;line-height:1;flex:none;">&times;</button>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+            <div style="padding:14px 12px 8px;">
+              <button onClick="{{ goResults }}" style="display:inline-flex;align-items:center;gap:8px;background:none;border:none;cursor:pointer;font-family:inherit;font-size:13.5px;font-weight:600;color:#3b6ef6;padding:0;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                Add more compatible parts
+              </button>
+            </div>
+          </div>
+        </section>
+      </sc-if>
+
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1180,&quot;height&quot;:860},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#3b6ef6&quot;,&quot;options&quot;:[&quot;#3b6ef6&quot;,&quot;#1c1c1e&quot;,&quot;#1f9d57&quot;],&quot;tsType&quot;:&quot;string&quot;},&quot;density&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;comfortable&quot;,&quot;options&quot;:[&quot;comfortable&quot;,&quot;compact&quot;],&quot;tsType&quot;:&quot;string&quot;},&quot;showPrices&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  state = {
+    screen: 'dashboard',
+    type: 'frame',
+    selectedId: 'canyon-cfr',
+    query: '',
+    build: ['zipp-303'],
+    expandedId: null,
+    isNarrow: false,
+    navOpen: true,
+  };
+
+  STORE_KEY = 'bikebreaker:v3';
+
+  TYPES = {
+    frame:    { label: 'Frame',          letter: 'F', bg: '#eaf0fd', fg: '#3b6ef6' },
+    crankset: { label: 'Crankset',       letter: 'C', bg: '#fdeee2', fg: '#e0843a' },
+    wheelset: { label: 'Wheelset',       letter: 'W', bg: '#e7f5ee', fg: '#1f9d57' },
+    cassette: { label: 'Cassette',       letter: 'K', bg: '#f3edfb', fg: '#7c4ec4' },
+    bb:       { label: 'Bottom bracket', letter: 'B', bg: '#fceef4', fg: '#c2477e' },
+    fork:     { label: 'Fork',           letter: 'O', bg: '#eaf0fd', fg: '#3b78d6' },
+    tire:     { label: 'Tire',           letter: 'T', bg: '#eef4e6', fg: '#6f8a2f' },
+  };
+
+  TONES = {
+    fits:      { bg: '#e9f5ee', fg: '#167a45', dot: '#1f9d57', border: '#cfe9d8', rowBg: '#fbfdfc', rowBorder: '#eef4f0', label: 'Fits' },
+    conflict:  { bg: '#fcecea', fg: '#b3261e', dot: '#e0473a', border: '#f3d2cd', rowBg: '#fefafa', rowBorder: '#f7e4e1', label: 'Conflict' },
+    unrelated: { bg: '#f1f1ef', fg: '#6f6b64', dot: '#b0aaa2', border: '#e7e6e1', rowBg: '#fbfbfa', rowBorder: '#eeeeec', label: 'Unrelated' },
+  };
+
+  CATALOG = [
+    { id:'canyon-cfr', type:'frame', brand:'Canyon', name:'Ultimate CFR Frameset', spec:'BSA · 142×12 · flat-mount disc', price:'$2,899', attrs:{ bbShell:'BSA', axle:'142x12', brake:'disc' } },
+    { id:'spec-sl8', type:'frame', brand:'Specialized', name:'Tarmac SL8 Frameset', spec:'T47 · 142×12 · flat-mount disc', price:'$3,200', attrs:{ bbShell:'T47', axle:'142x12', brake:'disc' } },
+    { id:'cdale-caad', type:'frame', brand:'Cannondale', name:'CAAD13 Rim Frameset', spec:'BSA · QR 130 · rim brake', price:'$1,500', attrs:{ bbShell:'BSA', axle:'QR130', brake:'rim' } },
+    { id:'shim-ultegra-crank', type:'crankset', brand:'Shimano', name:'Ultegra FC-R8100', spec:'24mm HTII · 50/34T · 2×12', price:'$279', attrs:{ spindle:'24HTII', group:'shimano12', speed:12 } },
+    { id:'sram-rival-crank', type:'crankset', brand:'SRAM', name:'Rival AXS Wide', spec:'DUB 28.99mm · 43/30T · 2×12', price:'$330', attrs:{ spindle:'DUB', group:'sram12', speed:12 } },
+    { id:'sram-red-crank', type:'crankset', brand:'SRAM', name:'RED AXS', spec:'DUB 28.99mm · 48/35T · 2×12', price:'$680', attrs:{ spindle:'DUB', group:'sram12', speed:12 } },
+    { id:'campy-sr-crank', type:'crankset', brand:'Campagnolo', name:'Super Record 12', spec:'ProTech axle · 2×12', price:'$760', attrs:{ spindle:'ProTech', group:'campy12', speed:12 } },
+    { id:'shim-bbr60', type:'bb', brand:'Shimano', name:'SM-BBR60', spec:'BSA threaded · 24mm cups', price:'$40', attrs:{ shell:'BSA', bbBore:'24' } },
+    { id:'wm-bsa24', type:'bb', brand:'Wheels Mfg', name:'BSA 24mm', spec:'BSA threaded · 24mm cups', price:'$75', attrs:{ shell:'BSA', bbBore:'24' } },
+    { id:'sram-dub-bsa', type:'bb', brand:'SRAM', name:'DUB BSA', spec:'BSA threaded · 28.99mm bore', price:'$45', attrs:{ shell:'BSA', bbBore:'28.99' } },
+    { id:'praxis-m30', type:'bb', brand:'Praxis', name:'M30 BSA', spec:'BSA threaded · 30mm bore', price:'$80', attrs:{ shell:'BSA', bbBore:'30' } },
+    { id:'wm-t47', type:'bb', brand:'Wheels Mfg', name:'T47 24mm', spec:'T47 threaded · 24mm cups', price:'$90', attrs:{ shell:'T47', bbBore:'24' } },
+    { id:'zipp-303', type:'wheelset', brand:'Zipp', name:'303 Firecrest', spec:'142×12 · Center Lock · 25mm int', price:'$1,900', attrs:{ axle:'142x12', brake:'disc', freehubs:['HG','XDR'], rimInternal:25, hookless:true } },
+    { id:'dt-erc1400', type:'wheelset', brand:'DT Swiss', name:'ERC 1400 Dicut', spec:'142×12 · Center Lock · 20mm int', price:'$1,650', attrs:{ axle:'142x12', brake:'disc', freehubs:['HG'], rimInternal:20, hookless:false } },
+    { id:'roval-rapide', type:'wheelset', brand:'Roval', name:'Rapide CLX II', spec:'142×12 · Center Lock · 21mm int', price:'$2,650', attrs:{ axle:'142x12', brake:'disc', freehubs:['HG','XDR'], rimInternal:21, hookless:true } },
+    { id:'fulcrum-r5', type:'wheelset', brand:'Fulcrum', name:'Racing 5 DB', spec:'QR 135 · 6-bolt disc', price:'$420', attrs:{ axle:'QR135', brake:'disc', freehubs:['HG'], rimInternal:19, hookless:false } },
+    { id:'mavic-openpro', type:'wheelset', brand:'Mavic', name:'Open Pro UST', spec:'QR 130 · rim brake', price:'$540', attrs:{ axle:'QR130', brake:'rim', freehubs:['HG'], rimInternal:19, hookless:false } },
+    { id:'zipp-404', type:'wheelset', brand:'Zipp', name:'404 Firecrest', spec:'142×12 · Center Lock · XDR only', price:'$2,000', attrs:{ axle:'142x12', brake:'disc', freehubs:['XDR'], rimInternal:23, hookless:true } },
+    { id:'shim-ultegra-cass', type:'cassette', brand:'Shimano', name:'Ultegra R8100 11-34T', spec:'12-speed · HG freehub', price:'$140', attrs:{ freehub:'HG', group:'shimano12', speed:12 } },
+    { id:'shim-105-cass11', type:'cassette', brand:'Shimano', name:'105 R7000 11-32T', spec:'11-speed · HG freehub', price:'$55', attrs:{ freehub:'HG', group:'shimano11', speed:11 } },
+    { id:'sram-force-cass', type:'cassette', brand:'SRAM', name:'Force XG-1270', spec:'12-speed · XDR freehub', price:'$215', attrs:{ freehub:'XDR', group:'sram12', speed:12 } },
+    { id:'sram-rival-cass', type:'cassette', brand:'SRAM', name:'Rival XG-1250', spec:'12-speed · XDR freehub', price:'$130', attrs:{ freehub:'XDR', group:'sram12', speed:12 } },
+    { id:'conti-gp5000-30', type:'tire', brand:'Continental', name:'GP5000 S TR 700×30', spec:'30mm · tubeless · hookless-OK', price:'$85', attrs:{ width:30, tubeless:true, hooklessOK:true } },
+    { id:'pirelli-pzero-28', type:'tire', brand:'Pirelli', name:'P Zero Race TLR 700×28', spec:'28mm · tubeless · hookless-OK', price:'$79', attrs:{ width:28, tubeless:true, hooklessOK:true } },
+    { id:'conti-gp5000-28', type:'tire', brand:'Continental', name:'GP5000 700×28', spec:'28mm · hooked clincher', price:'$70', attrs:{ width:28, tubeless:false, hooklessOK:false } },
+    { id:'vittoria-corsa-25', type:'tire', brand:'Vittoria', name:'Corsa 700×25', spec:'25mm · tubed clincher', price:'$70', attrs:{ width:25, tubeless:false, hooklessOK:false } },
+  ];
+
+  RELATIONS = {
+    frame: [
+      { type:'crankset', title:'Cranksets that fit this frame', subtitle:'Checked against the frame’s bottom-bracket shell standard.' },
+      { type:'wheelset', title:'Wheelsets that fit this frame', subtitle:'Matched on thru-axle spacing and brake mounting.' },
+      { type:'bb', title:'Bottom brackets that fit this frame', subtitle:'Matched to the frame’s threaded shell.' },
+    ],
+    crankset: [
+      { type:'bb', title:'Bottom brackets that fit this crank', subtitle:'Matched to the crank’s spindle diameter.' },
+      { type:'frame', title:'Frames that accept this crank', subtitle:'Compatible bottom-bracket shells for this spindle.' },
+      { type:'cassette', title:'Cassettes for this drivetrain', subtitle:'Matched to drivetrain speed and indexing.' },
+    ],
+    wheelset: [
+      { type:'frame', title:'Frames that fit these wheels', subtitle:'Matched on thru-axle spacing and brake mounting.' },
+      { type:'cassette', title:'Cassettes that fit this freehub', subtitle:'Matched to the wheel’s freehub body.' },
+      { type:'tire', title:'Tires that fit these rims', subtitle:'Validated against rim width and hookless rating.' },
+    ],
+    cassette: [
+      { type:'wheelset', title:'Wheels that accept this cassette', subtitle:'Matched to the cassette’s freehub standard.' },
+      { type:'crankset', title:'Cranksets for this drivetrain', subtitle:'Matched to drivetrain speed and indexing.' },
+    ],
+    tire: [
+      { type:'wheelset', title:'Wheels these tires fit', subtitle:'Validated against rim width and hookless rating.' },
+    ],
+    bb: [
+      { type:'crankset', title:'Cranks that fit this bottom bracket', subtitle:'Matched to spindle diameter.' },
+      { type:'frame', title:'Frames with a matching shell', subtitle:'Matched to the bottom bracket’s shell standard.' },
+    ],
+  };
+
+  axleLabel(a) { return ({ '142x12':'142×12mm', 'QR130':'QR 130mm', 'QR135':'QR 135mm' })[a] || a; }
+  brakeLabel(b) { return b === 'disc' ? 'Disc' : 'Rim brake'; }
+  spindleLabel(s) { return ({ '24HTII':'24mm Hollowtech II', 'DUB':'DUB 28.99mm', 'M30':'M30 30mm', 'ProTech':'ProTech press-fit' })[s] || s; }
+  groupLabel(g) { return ({ shimano12:'Shimano 12-speed', sram12:'SRAM AXS 12-speed', shimano11:'Shimano 11-speed', campy12:'Campagnolo 12-speed' })[g] || g; }
+
+  byId(id) { return this.CATALOG.find(p => p.id === id); }
+
+  specsFor(p) {
+    const a = p.attrs || {};
+    switch (p.type) {
+      case 'frame': return [a.bbShell + ' threaded BB', this.axleLabel(a.axle) + ' thru-axle', a.brake === 'disc' ? 'Flat-mount disc' : 'Rim brake', '700c'];
+      case 'crankset': return [this.spindleLabel(a.spindle), a.speed + '-speed', this.groupLabel(a.group)];
+      case 'bb': return [a.shell + ' threaded shell', a.bbBore + 'mm bore'];
+      case 'wheelset': return [this.axleLabel(a.axle) + ' thru-axle', a.brake === 'disc' ? 'Center Lock disc' : 'Rim brake', a.rimInternal + 'mm internal · ' + (a.hookless ? 'hookless' : 'hooked'), a.freehubs.join('/') + ' freehub'];
+      case 'cassette': return [a.speed + '-speed', a.freehub + ' freehub', this.groupLabel(a.group)];
+      case 'tire': return ['700×' + a.width + 'c', a.tubeless ? 'Tubeless (TR)' : 'Clincher', a.hooklessOK ? 'Hookless-approved' : 'Hooked rims only'];
+      default: return [];
+    }
+  }
+
+  compat(a, b) {
+    const fits = (reason, detail) => ({ tone:'fits', reason, detail });
+    const conflict = (reason, detail) => ({ tone:'conflict', reason, detail });
+    const unrelated = (reason, detail) => ({ tone:'unrelated', reason, detail });
+    const has = (t1, t2) => a.type !== b.type && [a.type, b.type].includes(t1) && [a.type, b.type].includes(t2);
+    const get = (t) => (a.type === t ? a : b).attrs;
+
+    if (has('frame', 'crankset')) {
+      const f = get('frame'), c = get('crankset');
+      const ok = c.spindle !== 'ProTech';
+      const detail = [{ label:'BB shell', you: f.bbShell + ' threaded', them: this.spindleLabel(c.spindle), ok }];
+      return ok ? fits(f.bbShell + ' shell takes this spindle with the right BB', detail)
+                : conflict('BB shell mismatch — ProTech needs a press-fit frame', detail);
+    }
+    if (has('frame', 'wheelset')) {
+      const f = get('frame'), w = get('wheelset');
+      const brakeOk = f.brake === w.brake, axleOk = f.axle === w.axle;
+      const detail = [
+        { label:'Brake', you:this.brakeLabel(f.brake), them:this.brakeLabel(w.brake), ok:brakeOk },
+        { label:'Axle', you:this.axleLabel(f.axle), them:this.axleLabel(w.axle), ok:axleOk },
+      ];
+      if (!brakeOk) return unrelated(this.brakeLabel(w.brake) + ' wheel — different braking interface', detail);
+      if (!axleOk) return conflict('Axle mismatch — ' + this.axleLabel(w.axle) + ' won’t hold in a ' + this.axleLabel(f.axle) + ' frame', detail);
+      return fits(this.axleLabel(f.axle) + ' thru-axle and disc mount match', detail);
+    }
+    if (has('frame', 'bb')) {
+      const f = get('frame'), bb = get('bb');
+      const ok = f.bbShell === bb.shell;
+      const detail = [{ label:'Shell', you:f.bbShell + ' threaded', them:bb.shell + ' threaded', ok }];
+      return ok ? fits(f.bbShell + ' threaded shell matches', detail)
+                : conflict('Shell mismatch — frame is ' + f.bbShell + ', this BB is ' + bb.shell, detail);
+    }
+    if (has('crankset', 'bb')) {
+      const c = get('crankset'), bb = get('bb');
+      const need = ({ '24HTII':'24', 'DUB':'28.99', 'M30':'30' })[c.spindle];
+      const ok = !need || bb.bbBore === need;
+      const detail = [{ label:'Spindle', you:this.spindleLabel(c.spindle), them:bb.bbBore + 'mm bore', ok }];
+      return ok ? fits(bb.bbBore + 'mm bore fits the ' + this.spindleLabel(c.spindle) + ' spindle', detail)
+                : conflict('Spindle mismatch — needs a ' + need + 'mm bore, this is ' + bb.bbBore + 'mm', detail);
+    }
+    if (has('crankset', 'cassette')) {
+      const c = get('crankset'), k = get('cassette');
+      const speedOk = c.speed === k.speed, groupOk = c.group === k.group;
+      const detail = [
+        { label:'Speed', you:c.speed + '-speed', them:k.speed + '-speed', ok:speedOk },
+        { label:'Indexing', you:this.groupLabel(c.group), them:this.groupLabel(k.group), ok:groupOk },
+      ];
+      if (!speedOk) return unrelated('Different speed count — ' + c.speed + '-speed vs ' + k.speed + '-speed', detail);
+      if (!groupOk) return conflict('Cog-pitch mismatch — ' + this.groupLabel(c.group) + ' isn’t indexed for ' + this.groupLabel(k.group), detail);
+      return fits(c.speed + '-speed ' + this.groupLabel(c.group) + ' indexing matches', detail);
+    }
+    if (has('wheelset', 'cassette')) {
+      const w = get('wheelset'), k = get('cassette');
+      const ok = w.freehubs.includes(k.freehub);
+      const detail = [{ label:'Freehub', you:w.freehubs.join('/') + ' body', them:k.freehub + ' cassette', ok }];
+      return ok ? fits(k.freehub + ' freehub body available on this wheel', detail)
+                : conflict('Freehub mismatch — needs a ' + k.freehub + ' body, wheel has ' + w.freehubs.join('/'), detail);
+    }
+    if (has('wheelset', 'tire')) {
+      const w = get('wheelset'), t = get('tire');
+      if (w.hookless) {
+        const rateOk = t.hooklessOK, widthOk = t.width >= 28;
+        const detail = [
+          { label:'Rim type', you:'Hookless tubeless', them: t.hooklessOK ? 'Hookless-approved' : 'Not hookless-rated', ok:rateOk },
+          { label:'Width', you:'28mm minimum', them: t.width + 'mm', ok:widthOk },
+        ];
+        if (!rateOk) return conflict('Not hookless-rated — this rim needs a hookless-approved tire', detail);
+        if (!widthOk) return conflict('Too narrow — hookless rims require a 28mm minimum (this is ' + t.width + 'mm)', detail);
+        return fits(t.width + 'mm hookless-approved tubeless — good match', detail);
+      }
+      const detail = [{ label:'Rim type', you:'Hooked rim', them: t.width + 'mm ' + (t.tubeless ? 'tubeless' : 'clincher'), ok:true }];
+      return fits(t.width + 'mm on a hooked rim — fits', detail);
+    }
+    if (a.type === b.type) return unrelated('Same part category — not an interface to check', []);
+    return unrelated('Different interface — these parts don’t share a contact point', []);
+  }
+
+  glyph(type, size) {
+    const m = this.TYPES[type] || this.TYPES.frame;
+    const s = size || 40;
+    return `display:flex;align-items:center;justify-content:center;flex:none;width:${s}px;height:${s}px;border-radius:${Math.round(s*0.26)}px;background:${m.bg};color:${m.fg};font-family:'Geist Mono',monospace;font-weight:600;font-size:${Math.round(s*0.42)}px;`;
+  }
+
+  componentDidMount() {
+    try {
+      const raw = localStorage.getItem(this.STORE_KEY);
+      if (raw) {
+        const d = JSON.parse(raw);
+        const patch = {};
+        if (d.selectedId && this.byId(d.selectedId)) patch.selectedId = d.selectedId;
+        if (Array.isArray(d.build)) patch.build = d.build.filter(id => this.byId(id));
+        if (Object.keys(patch).length) this.setState(patch);
+      }
+    } catch (e) {}
+    this._onResize = () => {
+      const n = window.innerWidth < 900;
+      this.setState({ isNarrow: n, navOpen: !n });
+    };
+    this._onResize();
+    window.addEventListener('resize', this._onResize);
+  }
+  componentWillUnmount() { if (this._onResize) window.removeEventListener('resize', this._onResize); }
+
+  persist(next) {
+    try {
+      localStorage.setItem(this.STORE_KEY, JSON.stringify({
+        selectedId: next.selectedId ?? this.state.selectedId,
+        build: next.build ?? this.state.build,
+      }));
+    } catch (e) {}
+  }
+
+  go(screen) { this.setState(s => ({ screen, navOpen: s.isNarrow ? false : s.navOpen })); }
+  pick(id) { this.setState(s => ({ selectedId: id, screen: 'results', expandedId: null, navOpen: s.isNarrow ? false : s.navOpen })); this.persist({ selectedId: id }); }
+  addToBuild(id) {
+    this.setState(s => {
+      if (s.build.includes(id) || id === s.selectedId) return null;
+      const build = [...s.build, id];
+      this.persist({ build });
+      return { build };
+    });
+  }
+  removeFromBuild(id) { this.setState(s => { const build = s.build.filter(b => b !== id); this.persist({ build }); return { build }; }); }
+  toggleDetail(id) { this.setState(s => ({ expandedId: s.expandedId === id ? null : id })); }
+
+  navStyle(screen) {
+    const active = this.state.screen === screen;
+    return `display:flex;align-items:center;gap:12px;padding:10px 12px;border:none;cursor:pointer;font-family:inherit;font-size:14px;font-weight:${active?600:500};border-radius:9px;text-align:left;width:100%;background:${active?'#2c2c30':'transparent'};color:${active?'#ffffff':'#9a9ca1'};box-shadow:${active?'inset 0 0 0 1px #393940':'none'};`;
+  }
+
+  renderVals() {
+    const s = this.state;
+    const T = this.TONES;
+    const accent = this.props.accent ?? '#3b6ef6';
+    const compact = (this.props.density ?? 'comfortable') === 'compact';
+    const showPrices = this.props.showPrices ?? true;
+    const rowPad = compact ? 11 : 14;
+
+    // picker
+    const q = s.query.trim().toLowerCase();
+    const pickerResults = this.CATALOG
+      .filter(p => p.type === s.type)
+      .filter(p => !q || (p.brand + ' ' + p.name).toLowerCase().includes(q))
+      .map(p => ({ ...p, letter: this.TYPES[p.type].letter, glyphStyle: this.glyph(p.type, 42), select: () => this.pick(p.id) }));
+
+    const partTypes = Object.keys(this.TYPES).filter(k => k !== 'fork').map(k => {
+      const m = this.TYPES[k];
+      const active = s.type === k;
+      return {
+        key: k, label: m.label, letter: m.letter,
+        chipStyle: `display:inline-flex;align-items:center;gap:9px;border-radius:11px;padding:9px 15px 9px 9px;font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;background:#fff;border:1px solid ${active?accent:'#e7e8ea'};color:#1c1c24;box-shadow:${active?('0 0 0 1px ' + accent):'none'};`,
+        glyphStyle: this.glyph(k, 30),
+        select: () => this.setState({ type: k }),
+      };
+    });
+
+    // owner + generated groups
+    const owner = this.byId(s.selectedId) || this.CATALOG[0];
+    const rels = this.RELATIONS[owner.type] || [];
+    const rank = { fits:0, conflict:1, unrelated:2 };
+    const buildSet = new Set(s.build);
+    let totalFits = 0, totalChecked = 0, totalConflict = 0;
+
+    const groups = rels.map(rel => {
+      const cands = this.CATALOG
+        .filter(c => c.type === rel.type && c.id !== owner.id)
+        .map(c => ({ cand: c, r: this.compat(owner, c) }))
+        .sort((x, y) => rank[x.r.tone] - rank[y.r.tone]);
+
+      let gFits = 0;
+      const items = cands.map(({ cand, r }) => {
+        const tn = T[r.tone];
+        const added = buildSet.has(cand.id);
+        const canAdd = r.tone !== 'unrelated';
+        const expanded = s.expandedId === cand.id;
+        totalChecked++; if (r.tone === 'fits') { totalFits++; gFits++; } if (r.tone === 'conflict') totalConflict++;
+        return {
+          id: cand.id, brand: cand.brand, name: cand.name, spec: cand.spec, price: cand.price,
+          letter: this.TYPES[cand.type].letter,
+          glyphStyle: this.glyph(cand.type, 42),
+          rowStyle: `background:${tn.rowBg};border:1px solid ${tn.rowBorder};border-radius:12px;padding:${rowPad}px;`,
+          badgeStyle: `display:inline-flex;align-items:center;gap:6px;background:${tn.bg};color:${tn.fg};border:1px solid ${tn.border};border-radius:999px;padding:4px 10px;font-size:12px;font-weight:600;white-space:nowrap;`,
+          dotStyle: `width:7px;height:7px;border-radius:50%;background:${tn.dot};flex:none;`,
+          statusLabel: tn.label,
+          hasReason: !!r.reason,
+          reason: r.reason,
+          expanded,
+          toggleDetail: () => this.toggleDetail(cand.id),
+          detailLabel: expanded ? 'Hide' : (r.tone === 'fits' ? 'Specs' : 'Why?'),
+          detailBtnStyle: `border:1px solid #e7e8ea;background:${expanded?'#f1f2f4':'#fff'};color:#5c5f66;border-radius:8px;padding:7px 13px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;`,
+          detail: (r.detail || []).map(d => ({
+            label: d.label, you: d.you, them: d.them,
+            dotStyle: `width:7px;height:7px;border-radius:50%;flex:none;background:${d.ok ? '#1f9d57' : '#e0473a'};`,
+            youStyle: `font-family:'Geist Mono',monospace;color:#5c5f66;background:#fff;border:1px solid #e7e8ea;border-radius:6px;padding:2px 7px;`,
+            themStyle: `font-family:'Geist Mono',monospace;color:${d.ok ? '#5c5f66' : '#b3261e'};background:${d.ok ? '#fff' : '#fcecea'};border:1px solid ${d.ok ? '#e7e8ea' : '#f3d2cd'};border-radius:6px;padding:2px 7px;`,
+          })),
+          add: () => this.addToBuild(cand.id),
+          addLabel: added ? 'Added ✓' : (canAdd ? (r.tone === 'conflict' ? 'Add anyway' : 'Add to build') : 'N/A'),
+          addStyle: canAdd
+            ? `border:1px solid ${added?'#cfe9d8':accent};background:${added?'#e9f5ee':accent};color:${added?'#167a45':'#fff'};border-radius:8px;padding:7px 14px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;`
+            : `border:1px solid #ededee;background:#f6f6f6;color:#c0c3c8;border-radius:8px;padding:7px 14px;font-family:inherit;font-size:13px;font-weight:600;cursor:default;white-space:nowrap;`,
+        };
+      });
+
+      const total = items.length;
+      const pct = total ? Math.round((gFits / total) * 100) : 0;
+      return {
+        title: rel.title, subtitle: rel.subtitle,
+        count: `${gFits} of ${total} fit`,
+        barStyle: `height:100%;width:${pct}%;border-radius:6px;background:#1f9d57;`,
+        items,
+      };
+    });
+
+    // build (owner pinned + added)
+    const ownerItem = { id: owner.id, type: owner.type, brand: owner.brand, name: owner.name, price: owner.price, attrs: owner.attrs, pinned: true };
+    const added = s.build.map(id => this.byId(id)).filter(Boolean);
+    const trayRaw = [ownerItem, ...added];
+    const conflictFor = (idx) => {
+      for (let j = 0; j < trayRaw.length; j++) {
+        if (j === idx) continue;
+        const r = this.compat(trayRaw[idx], trayRaw[j]);
+        if (r.tone === 'conflict') return { other: trayRaw[j], reason: r.reason };
+      }
+      return null;
+    };
+    let hasConflict = false;
+    const trayParts = trayRaw.map((p, idx) => {
+      const c = conflictFor(idx);
+      if (c) hasConflict = true;
+      const tone = c ? 'conflict' : 'fits';
+      const tn = T[tone];
+      return {
+        id: p.id, brand: p.brand, name: p.name, price: p.price,
+        letter: this.TYPES[p.type].letter,
+        glyphStyle: this.glyph(p.type, 40),
+        pinned: !!p.pinned,
+        removable: !p.pinned,
+        rowStyle: `display:flex;align-items:center;gap:13px;background:${c?'#fefafa':'#fbfdfc'};border:1px solid ${c?'#f7e4e1':'#eef4f0'};border-radius:12px;padding:13px;`,
+        dotStyle: `width:7px;height:7px;border-radius:50%;flex:none;background:${tn.dot};`,
+        statusBadgeStyle: `display:inline-flex;align-items:center;gap:6px;background:${tn.bg};color:${tn.fg};border:1px solid ${tn.border};border-radius:999px;padding:4px 10px;font-size:12px;font-weight:600;white-space:nowrap;flex:none;`,
+        statusLabel: tn.label,
+        hasReason: !!c,
+        reason: c ? ('Conflicts with ' + c.other.brand + ' ' + c.other.name + ' — ' + c.reason) : '',
+        remove: () => this.removeFromBuild(p.id),
+      };
+    });
+
+    const total = trayRaw.reduce((sum, p) => sum + (parseFloat((p.price || '0').replace(/[^0-9.]/g, '')) || 0), 0);
+    const buildTone = hasConflict ? T.conflict : T.fits;
+    const addedCount = added.length;
+    const fitRatio = totalChecked ? Math.round((totalFits / totalChecked) * 100) : 0;
+
+    // responsive shell
+    const narrow = s.isNarrow, open = s.navOpen;
+    const sidebarBase = 'width:248px;flex:none;background:#1b1b1d;display:flex;flex-direction:column;padding:22px 16px;';
+    const sidebarStyle = narrow
+      ? sidebarBase + `position:fixed;left:0;top:0;height:100vh;z-index:60;transform:translateX(${open?'0':'-110%'});transition:transform .28s cubic-bezier(.2,.8,.2,1);box-shadow:${open?'0 20px 60px rgba(0,0,0,0.35)':'none'};`
+      : sidebarBase + 'position:sticky;top:0;height:100vh;';
+    const scrimStyle = `position:fixed;inset:0;z-index:55;background:rgba(12,12,14,0.45);display:${narrow && open ? 'block' : 'none'};`;
+    const hamburgerStyle = `display:${narrow ? 'flex' : 'none'};align-items:center;justify-content:center;width:40px;height:40px;border-radius:9px;border:1px solid #e1e2e5;background:#fff;color:#3a3d44;cursor:pointer;flex:none;`;
+
+    const titles = {
+      dashboard: ['Dashboard', 'Your part, and everything that fits it'],
+      picker: ['Pick a part', 'Choose the part you own to check compatibility'],
+      results: ['Compatible parts', owner.brand + ' ' + owner.name],
+      build: ['My build', hasConflict ? 'A conflict needs your attention' : 'Everything in your build is compatible'],
+    };
+    const [pageTitle, pageSubtitle] = titles[s.screen] || titles.dashboard;
+
+    return {
+      // nav
+      goDashboard: () => this.go('dashboard'),
+      goPicker: () => this.go('picker'),
+      goResults: () => this.go('results'),
+      goBuild: () => this.go('build'),
+      navDashboardStyle: this.navStyle('dashboard'),
+      navPickerStyle: this.navStyle('picker'),
+      navResultsStyle: this.navStyle('results'),
+      navBuildStyle: this.navStyle('build'),
+      toggleNav: () => this.setState(st => ({ navOpen: !st.navOpen })),
+      closeNav: () => this.setState({ navOpen: false }),
+      sidebarStyle, scrimStyle, hamburgerStyle,
+
+      isDashboard: s.screen === 'dashboard',
+      isPicker: s.screen === 'picker',
+      isResults: s.screen === 'results',
+      isBuild: s.screen === 'build',
+      pageTitle, pageSubtitle,
+      showPrices,
+
+      // picker
+      partTypes, pickerResults,
+      query: s.query,
+      onSearch: (e) => this.setState({ query: e.target.value }),
+      pickerEmpty: pickerResults.length === 0,
+
+      // sidebar status card
+      statusCardStyle: `width:100%;text-align:left;background:#232327;border:1px solid #2f2f34;border-radius:14px;padding:16px;cursor:pointer;font-family:inherit;`,
+      statusCardDotStyle: `width:10px;height:10px;border-radius:50%;flex:none;background:${buildTone.dot};box-shadow:0 0 0 4px ${hasConflict?'rgba(224,71,58,0.18)':'rgba(31,157,87,0.18)'};`,
+      statusCardLabel: hasConflict ? 'Conflict found' : 'Build compatible',
+      statusCardSub: `${addedCount + 1} part${addedCount === 0 ? '' : 's'} total — ${hasConflict ? 'review the flagged part' : 'all interfaces check out'}.`,
+
+      // owner
+      selectedBrand: owner.brand,
+      selectedName: owner.name,
+      selectedSpecs: this.specsFor(owner),
+      selectedGlyphStyle: this.glyph(owner.type, 54),
+      selectedGlyphSmStyle: this.glyph(owner.type, 40),
+      selectedLetter: this.TYPES[owner.type].letter,
+
+      // KPIs
+      kpiChecked: totalChecked,
+      kpiGroups: groups.length,
+      kpiFits: totalFits,
+      kpiFitPct: fitRatio + '%',
+      donutStyle: `width:44px;height:44px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;background:conic-gradient(#1f9d57 ${fitRatio}%, #e7e8ea 0);`,
+      kpiConflicts: totalConflict,
+      kpiConflictColor: totalConflict ? '#b3261e' : '#1c1c24',
+      kpiConflictNote: totalConflict ? 'flagged' : 'none',
+      buildStatusDotStyle: `width:11px;height:11px;border-radius:50%;flex:none;background:${buildTone.dot};box-shadow:0 0 0 4px ${buildTone.bg};`,
+      buildStatusLabel: hasConflict ? 'Conflict' : 'Compatible',
+      buildStatusColor: hasConflict ? '#b3261e' : '#167a45',
+      buildPartCount: (addedCount + 1) + ' part' + (addedCount === 0 ? '' : 's'),
+
+      // groups + tray
+      groups,
+      trayParts,
+
+      // build page banner
+      buildOk: !hasConflict,
+      buildBad: hasConflict,
+      buildBannerStyle: `background:${hasConflict?'#fdf3f2':'#f1faf4'};border:1px solid ${hasConflict?'#f5d9d5':'#d3ecdd'};border-radius:16px;padding:22px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;`,
+      buildBannerIconStyle: `width:48px;height:48px;border-radius:13px;flex:none;display:flex;align-items:center;justify-content:center;background:${buildTone.dot};`,
+      buildBannerSub: hasConflict ? 'One part clashes with another — swap it to clear your build.' : `All ${addedCount + 1} parts share compatible interfaces.`,
+      buildTotal: '$' + total.toLocaleString('en-US'),
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body,
+  #root {
+    @apply h-full;
+  }
+
+  body {
+    @apply bg-content text-ink font-sans antialiased;
+  }
+
+  /* Engineering-grade focus ring — visible and consistent */
+  :where(a, button, input, [tabindex]):focus-visible {
+    @apply outline-none ring-2 ring-accent ring-offset-2 ring-offset-white;
+  }
+}
+
+@layer utilities {
+  /* Conic-gradient donut for the fit-ratio KPI; --pct set inline */
+  .fit-donut {
+    background: conic-gradient(#1f9d57 var(--pct, 0%), #e7e8ea 0);
+  }
+}
+
+/* Custom scrollbar to match the reference dashboard */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: #d6d8dc;
+  border-radius: 8px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+input::placeholder {
+  color: #adb0b6;
+}
+
+/* Respect reduced-motion: disable transitions/animations globally */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
