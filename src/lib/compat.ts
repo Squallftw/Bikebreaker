@@ -21,6 +21,7 @@ import type {
   Brake,
   Spindle,
   Group,
+  Actuation,
 } from '../types';
 
 // ── Human-readable labels for the interface values ──────────────────────────
@@ -62,6 +63,9 @@ export function groupLabel(g: Group): string {
 /** Shell standard, correctly distinguishing threaded vs press-fit. */
 export function shellLabel(s: BBShell): string {
   return s === 'BB86' ? 'BB86 press-fit' : `${s} threaded`;
+}
+export function actuationLabel(a: Actuation): string {
+  return a === 'Di2' ? 'Di2 electronic' : 'Mechanical';
 }
 
 /** The spec chips shown for a part on the dashboard hero / lists. */
@@ -116,6 +120,18 @@ export function specsFor(p: Part): string[] {
     case 'chain': {
       const a = p.attrs;
       return [`${a.speed}-speed`, a.flatTop ? 'Flattop (SRAM AXS)' : 'Standard roller'];
+    }
+    case 'groupset': {
+      const a = p.attrs;
+      // Brake first so OwnedPartBar's .slice(0,3) surfaces compat-relevant chips.
+      return [
+        a.brake === 'disc' ? 'Disc' : 'Rim brake',
+        `${a.speed}-speed`,
+        actuationLabel(a.actuation),
+        groupLabel(a.group),
+        `${spindleLabel(a.crankSpindle)} crank`,
+        `${a.freehub} freehub`,
+      ];
     }
     default:
       return [];
@@ -277,6 +293,37 @@ export function compat(a: Part, b: Part): CompatResult {
           `Freehub mismatch — needs a ${k.freehub} body, wheel has ${w.freehubs.join('/')}`,
           detail,
         );
+  }
+
+  // groupset × frame — brake interface is the gate. The crank spindle is hosted
+  // by the frame's BB shell via the right BB for every shell we model, so the
+  // BB-shell row is informational (always ok).
+  if (pairHas(a, b, 'groupset', 'frame')) {
+    const g = attrsOf(a, b, 'groupset');
+    const f = attrsOf(a, b, 'frame');
+    const brakeOk = g.brake === f.brake;
+    const detail: DetailRow[] = [
+      { label: 'Brake', you: brakeLabel(g.brake), them: brakeLabel(f.brake), ok: brakeOk },
+      { label: 'BB shell', you: `${spindleLabel(g.crankSpindle)} crank`, them: shellLabel(f.bbShell), ok: true },
+    ];
+    if (!brakeOk) return unrelated(`${brakeLabel(f.brake)} frame — different braking interface`, detail);
+    return fits(`${shellLabel(f.bbShell)} shell takes this groupset’s crank and ${brakeLabel(g.brake).toLowerCase()} matches`, detail);
+  }
+
+  // groupset × wheelset — brake interface first, then the cassette freehub body.
+  if (pairHas(a, b, 'groupset', 'wheelset')) {
+    const g = attrsOf(a, b, 'groupset');
+    const w = attrsOf(a, b, 'wheelset');
+    const brakeOk = g.brake === w.brake;
+    const freehubOk = w.freehubs.includes(g.freehub);
+    const detail: DetailRow[] = [
+      { label: 'Brake', you: brakeLabel(g.brake), them: brakeLabel(w.brake), ok: brakeOk },
+      { label: 'Freehub', you: `${g.freehub} cassette`, them: `${w.freehubs.join('/')} body`, ok: freehubOk },
+    ];
+    if (!brakeOk) return unrelated(`${brakeLabel(w.brake)} wheel — different braking interface`, detail);
+    if (!freehubOk)
+      return conflict(`Freehub mismatch — needs a ${g.freehub} body, wheel has ${w.freehubs.join('/')}`, detail);
+    return fits(`${g.freehub} freehub body available and ${brakeLabel(g.brake).toLowerCase()} matches`, detail);
   }
 
   // wheelset × tire — hookless rims demand a hookless-approved tire ≥ 28mm.

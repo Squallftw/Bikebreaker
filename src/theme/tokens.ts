@@ -53,6 +53,7 @@ export const TYPE_TOKENS: Record<PartType, TypeToken> = {
   tire: { label: 'Tire', letter: 'T', glyph: 'bg-type-tire-bg text-type-tire-fg' },
   fork: { label: 'Fork', letter: 'O', glyph: 'bg-type-fork-bg text-type-fork-fg' },
   chain: { label: 'Chain', letter: 'N', glyph: 'bg-type-chain-bg text-type-chain-fg' },
+  groupset: { label: 'Groupset', letter: 'G', glyph: 'bg-type-groupset-bg text-type-groupset-fg' },
 };
 
 /** Per-detail-row dot for the spec comparison (ok → green, fail → red). */
@@ -75,11 +76,13 @@ export const TYPE_HEX: Record<PartType, { bg: string; fg: string }> = {
   tire: { bg: '#eef4e6', fg: '#6f8a2f' },
   fork: { bg: '#eef2fb', fg: '#3b78d6' },
   chain: { bg: '#f3ece0', fg: '#927b45' },
+  groupset: { bg: '#e3f3f1', fg: '#0f9b8e' },
 };
 
 /** Types the user can pick & own. */
 export const PICKABLE_TYPES: PartType[] = [
   'frame',
+  'groupset',
   'crankset',
   'wheelset',
   'cassette',

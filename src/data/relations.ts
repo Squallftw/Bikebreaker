@@ -8,6 +8,7 @@ import type { PartType, Relation } from '../types';
 
 export const RELATIONS: Record<PartType, Relation[]> = {
   frame: [
+    { type: 'groupset', title: 'Groupsets that fit this frame', subtitle: 'Matched on brake interface and crank/BB shell.' },
     { type: 'crankset', title: 'Cranksets that fit this frame', subtitle: 'Checked against the frame’s bottom-bracket shell standard.' },
     { type: 'wheelset', title: 'Wheelsets that fit this frame', subtitle: 'Matched on thru-axle spacing and brake mounting.' },
     { type: 'fork', title: 'Forks that fit this frame', subtitle: 'Matched on head-tube standard and brake mounting.' },
@@ -20,6 +21,7 @@ export const RELATIONS: Record<PartType, Relation[]> = {
     { type: 'chain', title: 'Chains for this drivetrain', subtitle: 'Matched to speed count and chain standard.' },
   ],
   wheelset: [
+    { type: 'groupset', title: 'Groupsets that fit these wheels', subtitle: 'Matched on brake interface and freehub body.' },
     { type: 'frame', title: 'Frames that fit these wheels', subtitle: 'Matched on thru-axle spacing and brake mounting.' },
     { type: 'fork', title: 'Forks that fit these wheels', subtitle: 'Matched on front-axle spacing and brake mounting.' },
     { type: 'cassette', title: 'Cassettes that fit this freehub', subtitle: 'Matched to the wheel’s freehub body.' },
@@ -44,5 +46,9 @@ export const RELATIONS: Record<PartType, Relation[]> = {
   fork: [
     { type: 'frame', title: 'Frames that accept this fork', subtitle: 'Matched on thru-axle spacing and brake mounting.' },
     { type: 'wheelset', title: 'Front wheels that fit this fork', subtitle: 'Matched on thru-axle spacing and brake mounting.' },
+  ],
+  groupset: [
+    { type: 'frame', title: 'Frames that fit this groupset', subtitle: 'Matched on brake interface and crank/BB shell.' },
+    { type: 'wheelset', title: 'Wheels that fit this groupset', subtitle: 'Matched on brake interface and freehub body.' },
   ],
 };

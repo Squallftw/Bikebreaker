@@ -7,6 +7,15 @@ export default {
         sans: ['Geist', 'system-ui', 'sans-serif'],
         mono: ['"Geist Mono"', 'ui-monospace', 'monospace'],
       },
+      keyframes: {
+        'tile-in': {
+          '0%': { opacity: '0', transform: 'translateY(12px) scale(0.97)' },
+          '100%': { opacity: '1', transform: 'none' },
+        },
+      },
+      animation: {
+        'tile-in': 'tile-in 0.34s both',
+      },
       colors: {
         ink: '#1c1c24',
         content: '#edeef1',
@@ -55,6 +64,7 @@ export default {
         'type-tire': { bg: '#eef4e6', fg: '#6f8a2f' },
         'type-fork': { bg: '#eaf0fd', fg: '#3b78d6' },
         'type-chain': { bg: '#f3ece0', fg: '#927b45' },
+        'type-groupset': { bg: '#e3f3f1', fg: '#0f9b8e' },
       },
     },
   },

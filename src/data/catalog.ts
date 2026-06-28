@@ -56,6 +56,22 @@ const SEED: Part[] = [
 
   // ── Chains (non-Shimano) ──────────────────────────────────────────────────
   { id: 'sram-force-chain', type: 'chain', brand: 'SRAM', name: 'Force Flattop', spec: '12-speed · Flattop (AXS)', attrs: { speed: 12, flatTop: true } },
+
+  // ── Groupsets (Shimano) ───────────────────────────────────────────────────
+  // Bundles derived from the PDF-sourced Shimano component lineup + road
+  // constants (all road cranks = 24mm Hollowtech II; road cassettes = HG freehub).
+  // The PDF is a component matrix with no "groupset" rows, so these are tagged
+  // as derived. 12-speed road is disc-only; 8–11-speed tiers are rim here.
+  { id: 'shimano-gs-r9200', type: 'groupset', brand: 'Shimano', name: 'Dura-Ace R9200 Di2', spec: '12s · Di2 · disc · HG', attrs: { group: 'shimano12', speed: 12, actuation: 'Di2', brake: 'disc', crankSpindle: '24HTII', freehub: 'HG' }, source: 'Shimano 2026-2027 Compatibility v2.2 (groupset, derived)' },
+  { id: 'shimano-gs-r8170', type: 'groupset', brand: 'Shimano', name: 'Ultegra R8170 Di2', spec: '12s · Di2 · disc · HG', attrs: { group: 'shimano12', speed: 12, actuation: 'Di2', brake: 'disc', crankSpindle: '24HTII', freehub: 'HG' }, source: 'Shimano 2026-2027 Compatibility v2.2 (groupset, derived)' },
+  { id: 'shimano-gs-r7150', type: 'groupset', brand: 'Shimano', name: '105 R7150 Di2', spec: '12s · Di2 · disc · HG', attrs: { group: 'shimano12', speed: 12, actuation: 'Di2', brake: 'disc', crankSpindle: '24HTII', freehub: 'HG' }, source: 'Shimano 2026-2027 Compatibility v2.2 (groupset, derived)' },
+  { id: 'shimano-gs-r7100', type: 'groupset', brand: 'Shimano', name: '105 R7100', spec: '12s · mechanical · disc · HG', attrs: { group: 'shimano12', speed: 12, actuation: 'mechanical', brake: 'disc', crankSpindle: '24HTII', freehub: 'HG' }, source: 'Shimano 2026-2027 Compatibility v2.2 (groupset, derived)' },
+  { id: 'shimano-gs-r9100', type: 'groupset', brand: 'Shimano', name: 'Dura-Ace R9100', spec: '11s · mechanical · rim · HG', attrs: { group: 'shimano11', speed: 11, actuation: 'mechanical', brake: 'rim', crankSpindle: '24HTII', freehub: 'HG' }, source: 'Shimano 2026-2027 Compatibility v2.2 (groupset, derived)' },
+  { id: 'shimano-gs-r8000', type: 'groupset', brand: 'Shimano', name: 'Ultegra R8000', spec: '11s · mechanical · rim · HG', attrs: { group: 'shimano11', speed: 11, actuation: 'mechanical', brake: 'rim', crankSpindle: '24HTII', freehub: 'HG' }, source: 'Shimano 2026-2027 Compatibility v2.2 (groupset, derived)' },
+  { id: 'shimano-gs-r7000', type: 'groupset', brand: 'Shimano', name: '105 R7000', spec: '11s · mechanical · rim · HG', attrs: { group: 'shimano11', speed: 11, actuation: 'mechanical', brake: 'rim', crankSpindle: '24HTII', freehub: 'HG' }, source: 'Shimano 2026-2027 Compatibility v2.2 (groupset, derived)' },
+  { id: 'shimano-gs-4700', type: 'groupset', brand: 'Shimano', name: 'Tiagra 4700', spec: '10s · mechanical · rim · HG', attrs: { group: 'shimano10', speed: 10, actuation: 'mechanical', brake: 'rim', crankSpindle: '24HTII', freehub: 'HG' }, source: 'Shimano 2026-2027 Compatibility v2.2 (groupset, derived)' },
+  { id: 'shimano-gs-r3000', type: 'groupset', brand: 'Shimano', name: 'Sora R3000', spec: '9s · mechanical · rim · HG', attrs: { group: 'shimano9', speed: 9, actuation: 'mechanical', brake: 'rim', crankSpindle: '24HTII', freehub: 'HG' }, source: 'Shimano 2026-2027 Compatibility v2.2 (groupset, derived)' },
+  { id: 'shimano-gs-r2000', type: 'groupset', brand: 'Shimano', name: 'Claris R2000', spec: '8s · mechanical · rim · HG', attrs: { group: 'shimano8', speed: 8, actuation: 'mechanical', brake: 'rim', crankSpindle: '24HTII', freehub: 'HG' }, source: 'Shimano 2026-2027 Compatibility v2.2 (groupset, derived)' },
 ];
 
 // Sourced from the Shimano 2026-2027 Compatibility PDF (validated at load).

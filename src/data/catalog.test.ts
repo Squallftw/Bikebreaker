@@ -26,4 +26,32 @@ describe('catalog integrity', () => {
       ]),
     ).toThrow(/spindle/);
   });
+
+  it('seeded Shimano groupsets, all HG / 24HTII (phase-1 scope)', () => {
+    const groupsets = CATALOG.filter((p) => p.type === 'groupset');
+    expect(groupsets.length).toBeGreaterThanOrEqual(8);
+    expect(CATALOG.find((p) => p.id === 'shimano-gs-r9200')?.type).toBe('groupset');
+    for (const g of groupsets) {
+      expect(g.brand).toBe('Shimano');
+      if (g.type === 'groupset') {
+        expect(g.attrs.freehub).toBe('HG');
+        expect(g.attrs.crankSpindle).toBe('24HTII');
+      }
+    }
+  });
+
+  it('rejects a groupset with a bad actuation', () => {
+    expect(() =>
+      validateCatalog([
+        {
+          id: 'gx',
+          type: 'groupset',
+          brand: 'b',
+          name: 'n',
+          spec: 's',
+          attrs: { group: 'shimano12', speed: 12, actuation: 'BOGUS', brake: 'disc', crankSpindle: '24HTII', freehub: 'HG' },
+        },
+      ]),
+    ).toThrow(/actuation/);
+  });
 });

@@ -20,7 +20,7 @@ describe('App routing', () => {
   it('first run (no part chosen) lands on the picker', () => {
     renderApp('/');
     expect(screen.getByRole('heading', { name: 'Your part' })).toBeInTheDocument();
-    expect(screen.getByText(/Tap the part you own on the bike/i)).toBeInTheDocument();
+    expect(screen.getByText(/browse a category and tap the part you own/i)).toBeInTheDocument();
   });
 
   it('returning user (part chosen) lands on What fits', () => {

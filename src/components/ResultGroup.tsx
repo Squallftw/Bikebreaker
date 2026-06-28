@@ -1,11 +1,12 @@
 import type { CompatGroup } from '../lib/results';
-import { ResultRow } from './ResultRow';
+import { PartTile } from './PartTile';
+import { TileGrid } from './TileGrid';
 
-/** A relationship group: a white panel of candidate rows for one candidate type. */
+/** A relationship group: a white panel with a tile grid of candidate parts. */
 export function ResultGroup({ group }: { group: CompatGroup }) {
   return (
-    <section className="rounded-2xl border border-hairline bg-white p-1.5 pb-2">
-      <header className="flex items-center justify-between gap-3 px-3.5 pb-3 pt-3.5">
+    <section className="rounded-2xl border border-hairline bg-white p-4">
+      <header className="flex items-center justify-between gap-3 pb-3.5">
         <div className="min-w-0">
           <h3 className="text-[15.5px] font-semibold leading-tight tracking-tight">{group.title}</h3>
           <p className="mt-0.5 text-[12.5px] text-[#abaeb4]">{group.subtitle}</p>
@@ -16,15 +17,13 @@ export function ResultGroup({ group }: { group: CompatGroup }) {
       </header>
 
       {group.items.length === 0 ? (
-        <p className="px-3.5 pb-3 text-[13px] text-[#abaeb4]">
-          No catalog parts of this type yet.
-        </p>
+        <p className="text-[13px] text-[#abaeb4]">No catalog parts of this type yet.</p>
       ) : (
-        <div className="flex flex-col gap-1.5">
-          {group.items.map((it) => (
-            <ResultRow key={it.part.id} item={it} />
-          ))}
-        </div>
+        <TileGrid
+          items={group.items}
+          resetKey={group.type}
+          renderItem={(it, i) => <PartTile key={it.part.id} mode="result" item={it} index={i} />}
+        />
       )}
     </section>
   );

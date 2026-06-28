@@ -1,14 +1,22 @@
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useStore } from '../store/useStore';
 import { useOwner, useBuildCheck } from '../hooks';
 import { IconMenu } from './icons';
+import { PartSearch } from './PartSearch';
 
 export function TopBar({ narrow }: { narrow: boolean }) {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const toggleNav = useStore((s) => s.toggleNav);
+  const setOwnedPart = useStore((s) => s.setOwnedPart);
   const hasChosen = useStore((s) => s.hasChosen);
   const owner = useOwner();
   const { hasConflict } = useBuildCheck();
+
+  const pickFromSearch = (id: string) => {
+    setOwnedPart(id);
+    navigate('/results');
+  };
 
   const [title, subtitle] = ((): [string, string] => {
     if (pathname.startsWith('/results'))
@@ -44,6 +52,11 @@ export function TopBar({ narrow }: { narrow: boolean }) {
           <h1 className="truncate text-[21px] font-semibold leading-tight tracking-tight">{title}</h1>
           <p className="mt-0.5 truncate text-[13px] text-[#82858c]">{subtitle}</p>
         </div>
+        <PartSearch
+          variant={narrow ? 'icon' : 'compact'}
+          placeholder="Search parts…"
+          onSelect={pickFromSearch}
+        />
         <span
           aria-hidden="true"
           className="flex h-[38px] w-[38px] flex-none items-center justify-center rounded-full bg-gradient-to-br from-accent to-[#7c4ec4] text-[13px] font-semibold text-white"

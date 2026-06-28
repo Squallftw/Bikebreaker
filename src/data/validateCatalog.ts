@@ -16,6 +16,7 @@ const PART_TYPES: PartType[] = [
   'tire',
   'fork',
   'chain',
+  'groupset',
 ];
 
 const ENUMS = {
@@ -28,6 +29,7 @@ const ENUMS = {
   bbBore: ['24', '28.99', '30'],
   freehub: ['HG', 'XDR'],
   steerer: ['tapered', 'straight'],
+  actuation: ['mechanical', 'Di2'],
 } as const;
 
 type Issue = string;
@@ -84,6 +86,14 @@ function checkAttrs(issues: Issue[], where: string, type: PartType, a: Record<st
     case 'chain':
       num('speed');
       bool('flatTop');
+      break;
+    case 'groupset':
+      checkEnum(issues, where, 'group', a.group, ENUMS.group);
+      checkEnum(issues, where, 'actuation', a.actuation, ENUMS.actuation);
+      checkEnum(issues, where, 'brake', a.brake, ENUMS.brake);
+      checkEnum(issues, where, 'crankSpindle', a.crankSpindle, ENUMS.spindle);
+      checkEnum(issues, where, 'freehub', a.freehub, ENUMS.freehub);
+      num('speed');
       break;
   }
 }

@@ -43,6 +43,9 @@ const cass10: Part = { id: 'k-10', type: 'cassette', brand: 'Shimano', name: 'Ti
 const frameBB86: Part = { id: 'f-bb86', type: 'frame', brand: 'Giant', name: 'TCR', spec: '', attrs: { bbShell: 'BB86', axle: '142x12', brake: 'disc', steerer: 'tapered' } };
 const bbBB86: Part = { id: 'b-bb86', type: 'bb', brand: 'Shimano', name: 'SM-BB72', spec: '', attrs: { shell: 'BB86', bbBore: '24' } };
 
+const gsShimDisc: Part = { id: 'gs-disc', type: 'groupset', brand: 'Shimano', name: '105 Di2', spec: '', attrs: { group: 'shimano12', speed: 12, actuation: 'Di2', brake: 'disc', crankSpindle: '24HTII', freehub: 'HG' } };
+const gsShimRim: Part = { id: 'gs-rim', type: 'groupset', brand: 'Shimano', name: '105 rim', spec: '', attrs: { group: 'shimano11', speed: 11, actuation: 'mechanical', brake: 'rim', crankSpindle: '24HTII', freehub: 'HG' } };
+
 const failingRow = (r: ReturnType<typeof compat>) => r.detail.find((d) => !d.ok);
 
 describe('frame × crankset', () => {
@@ -233,6 +236,34 @@ describe('extended schema (entry-level + press-fit)', () => {
   });
 });
 
+describe('groupset', () => {
+  it('fits a disc groupset on a disc frame (brake matches)', () => {
+    expect(compat(gsShimDisc, frameBSAdisc).tone).toBe('fits');
+  });
+  it('is unrelated to a rim frame (different braking interface)', () => {
+    const r = compat(gsShimDisc, frameBSArim);
+    expect(r.tone).toBe('unrelated');
+    expect(r.reason).toMatch(/braking interface/i);
+  });
+  it('fits a rim groupset on a rim frame', () => {
+    expect(compat(gsShimRim, frameBSArim).tone).toBe('fits');
+  });
+  it('fits a Shimano (HG) groupset on a wheel with an HG body', () => {
+    expect(compat(gsShimDisc, wheelDiscBoth).tone).toBe('fits');
+  });
+  it('conflicts on freehub when the wheel is XDR-only', () => {
+    const r = compat(gsShimDisc, wheelDiscXDR);
+    expect(r.tone).toBe('conflict');
+    expect(failingRow(r)?.label).toBe('Freehub');
+  });
+  it('is unrelated to a rim wheel (different braking interface)', () => {
+    expect(compat(gsShimDisc, wheelQR130rim).tone).toBe('unrelated');
+  });
+  it('is unrelated to a part with no shared interface (tire)', () => {
+    expect(compat(gsShimDisc, tire30HL).tone).toBe('unrelated');
+  });
+});
+
 describe('unrelated pairs', () => {
   it('same type is unrelated', () => {
     expect(compat(frameBSAdisc, frameT47disc).tone).toBe('unrelated');
@@ -264,6 +295,8 @@ describe('engine invariants', () => {
       [chainShim12, cassXDR12],
       [chainSram12, crank24],
       [chainShim12, cassHG11],
+      [gsShimDisc, frameBSArim],
+      [gsShimDisc, wheelDiscXDR],
     ];
     for (const [a, b] of pairs) {
       expect(compat(a, b).tone).toBe(compat(b, a).tone);

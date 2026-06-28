@@ -12,7 +12,8 @@ export type PartType =
   | 'cassette'
   | 'tire'
   | 'fork'
-  | 'chain';
+  | 'chain'
+  | 'groupset';
 
 export type Tone = 'fits' | 'conflict' | 'unrelated';
 
@@ -32,6 +33,9 @@ export type Group =
   | 'campy12';
 export type BBBore = '24' | '28.99' | '30';
 export type Freehub = 'HG' | 'XDR';
+// Drivetrain actuation for a groupset (Shimano: mechanical or Di2 electronic).
+// SRAM AXS / Campagnolo wireless are added when those brands are sourced.
+export type Actuation = 'mechanical' | 'Di2';
 // Front-axle standards (forks + front wheels) — distinct from the rear `Axle`.
 export type FrontAxle = '100x12' | 'QR100';
 // Steerer / head-tube standard.
@@ -84,6 +88,21 @@ export interface ChainAttrs {
   /** SRAM AXS 12-speed uses a Flattop chain — not cross-compatible with standard chains. */
   flatTop: boolean;
 }
+/**
+ * A groupset is a bundled drivetrain (shifters, derailleurs, crank, cassette,
+ * chain, brakes) sold as one tier. We model the interfaces it imposes on a
+ * frame (brake, crank spindle) and a wheel (brake, cassette freehub).
+ */
+export interface GroupsetAttrs {
+  group: Group;
+  speed: number;
+  actuation: Actuation;
+  brake: Brake;
+  /** Crank spindle — what the frame's BB shell must host (via the right BB). */
+  crankSpindle: Spindle;
+  /** Freehub body the bundled cassette needs on the wheel. */
+  freehub: Freehub;
+}
 
 /** Maps each part type to the shape of its `attrs`. */
 export interface AttrsByType {
@@ -95,6 +114,7 @@ export interface AttrsByType {
   tire: TireAttrs;
   fork: ForkAttrs;
   chain: ChainAttrs;
+  groupset: GroupsetAttrs;
 }
 
 /** A catalog part — a discriminated union keyed on `type`. */
